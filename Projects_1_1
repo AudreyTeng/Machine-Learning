@@ -1,0 +1,93 @@
+
+
+
+# Read the dataset and then print the head
+dataset = pd.read_csv('C:/Users/Audrey/Documents/1_GW/6364_Machine Learning/Projects/diabetes.csv')
+print(len(dataset))
+print(dataset.head())
+
+
+
+import matplotlib.pyplot as plt
+
+dataset.hist(bins=30, figsize=(15, 10))
+plt.show()
+
+
+
+
+column_x = dataset.columns[0:len(dataset.columns) - 1]
+corr = dataset[dataset.columns].corr()
+sns.heatmap(corr, annot=True)
+
+X = dataset.iloc[:, 0:8]
+# y is the last column which is the result
+y = dataset.iloc[:, 8]
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0, test_size=0.2)
+
+
+
+# replace zeroes
+zero_not_accepted = ['Glucose', 'BloodPressure', 'SkinThickness', 'Insulin', 'BMI']
+# For the columns that should not contain zeroes and null, I replace all the zeroes with NaN 
+# and then change all NaN to the median of that column
+for column in zero_not_accepted:
+    dataset[column] = dataset[column].replace(0, np.NaN)
+    mean = int(dataset[column].mean(skipna=True))
+    dataset[column] = dataset[column].replace(np.NaN, mean)
+
+
+# Standardization
+sc_X = StandardScaler()
+X_train = sc_X.fit_transform(X_train)
+X_test = sc_X.transform(X_test)
+
+
+import math
+
+math.sqrt(len(y_test))
+
+
+# define the model: Init knn
+classifier = KNeighborsClassifier(n_neighbors=11, algorithm='brute', p=2, metric='euclidean')
+
+
+classifier.fit(X_train, y_train)
+
+
+y_pred = classifier.predict(X_test)
+
+
+cm = confusion_matrix(y_test, y_pred)
+print(cm)
+
+
+
+print(accuracy_score(y_test, y_pred))
+
+
+
+import time
+
+start = time.time()
+classifier = KNeighborsClassifier(n_neighbors=11, p=2, algorithm='brute', metric='euclidean')
+classifier.fit(X_train, y_train)
+y_pred = classifier.predict(X_test)
+end = time.time()
+print(end - start)
+
+# Separate feature and target
+X = dataset.iloc[:, 0:8]
+Y = dataset.iloc[:, 8]
+print('shape of X {};shape of Y {}'.format(X.shape, Y.shape))
+
+# Divide training sets and test sets
+from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=.2)
+
+
+from sklearn.neighbors import KNeighborsClassifier, RadiusNeighborsClassifier
+
+models = []
+models.append(('KNN', KNeighborsClassifier(n_neighbors=3)))
